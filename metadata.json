@@ -1,0 +1,8 @@
+{
+  "name": "Remix: Gracie Bon 2.0",
+  "description": "A chic and minimalist personal website for fashion model Gracie Bon.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
