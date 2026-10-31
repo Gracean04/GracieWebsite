@@ -3,240 +3,373 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { motion, useAnimation, AnimatePresence } from 'motion/react';
-import React, { useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
+import { 
+  Mail, 
+  Copy, 
+  Check, 
+  Sparkles, 
+  Newspaper, 
+  Heart, 
+  ShieldCheck, 
+  Quote, 
+  Award,
+  Globe2
+} from 'lucide-react';
 
-type Language = 'en' | 'es';
+interface ArticleItem {
+  outlet: string;
+  category: string;
+  title: string;
+  quote: string;
+  highlight: string;
+  date: string;
+}
 
-const TRANSLATIONS = {
+interface ContentTranslation {
+  tagline: string;
+  dealsLabel: string;
+  email: string;
+  copyEmail: string;
+  copied: string;
+  sendEmail: string;
+  aboutTitle: string;
+  aboutBio: string;
+  newsSectionTitle: string;
+  newsSectionSubtitle: string;
+  pressInquiry: string;
+  rights: string;
+  articles: ArticleItem[];
+}
+
+const TRANSLATIONS: Record<'en' | 'es', ContentTranslation> = {
   en: {
-    pressAndHold: "Exclusive Content",
-    social: "Social",
-    inquiries: "Inquiries",
-    lang: "ES",
-    collab: "collab@graciebon.com",
-    ageWarning: "Are you 18 or older?",
-    yes: "Yes",
-    no: "No"
+    tagline: "Just a girl spreading self love.",
+    dealsLabel: "For brand deals & collaborations",
+    email: "collab@graciebon.com",
+    copyEmail: "Copy email",
+    copied: "Copied!",
+    sendEmail: "Send Email",
+    aboutTitle: "About Gracie Bon",
+    aboutBio: "Gracie Bon is a renowned Panamanian digital creator, curve fashion icon, and global body-positivity ambassador. With millions of followers worldwide, Gracie uses her influential platform to champion self-acceptance, normalize natural beauty, raise awareness for health conditions like lipedema, and advocate for size inclusivity across travel and lifestyle industries.",
+    newsSectionTitle: "Press & Positive Media Coverage",
+    newsSectionSubtitle: "Recognized by leading international publications for her advocacy, confidence, and impact on modern culture.",
+    pressInquiry: "For press interviews, media features, or official statements, contact:",
+    rights: "All Rights Reserved",
+    articles: [
+      {
+        outlet: "PinkNews",
+        category: "Health & Advocacy",
+        date: "Feature Story",
+        title: "Championing Lipedema Awareness & Mental Well-being",
+        quote: "Gracie Bon brings vital visibility to lipedema, helping millions understand the condition with honesty, grace, and compassion.",
+        highlight: "Lauded for her bravery in breaking the stigma around chronic lymphatic health conditions and fostering a supportive community for women everywhere."
+      },
+      {
+        outlet: "Daily Record & International Press",
+        category: "Inclusivity Advocacy",
+        date: "Global News",
+        title: "Leading the Movement for Accessible & Size-Inclusive Travel",
+        quote: "Sparking an essential global conversation on dignity, comfort, and standard accommodation for passengers of all shapes.",
+        highlight: "Highlighted by global media outlets for courageously advocating for broader airline seating and respectful travel experiences for curvy individuals."
+      },
+      {
+        outlet: "Bored Panda & Lifestyle Media",
+        category: "Body Positivity",
+        date: "Inspiring Voices",
+        title: "Radical Self-Love: Normalizing Natural Beauty & Stretch Marks",
+        quote: "A beacon of body confidence who empowers people to love every curve and celebrate who they truly are.",
+        highlight: "Celebrated for sharing unfiltered photos and uplifting messages that dismantle unrealistic social media beauty standards."
+      },
+      {
+        outlet: "Curve Fashion & Digital Trends",
+        category: "Fashion & Influence",
+        date: "Industry Spotlight",
+        title: "Redefining Fashion Standards & Inclusive Representation",
+        quote: "Transforming the curve apparel space with vibrant confidence and unprecedented engagement.",
+        highlight: "Acclaimed as a top collaborator for major curve fashion labels, proving that high fashion and self-assurance belong to every body type."
+      }
+    ]
   },
   es: {
-    pressAndHold: "Contenido Exclusivo",
-    social: "Redes",
-    inquiries: "Contacto",
-    lang: "EN",
-    collab: "collab@graciebon.com",
-    ageWarning: "¿Eres mayor de 18 años?",
-    yes: "Sí",
-    no: "No"
+    tagline: "Solo una chica compartiendo amor propio.",
+    dealsLabel: "Para acuerdos de marca y colaboraciones",
+    email: "collab@graciebon.com",
+    copyEmail: "Copiar correo",
+    copied: "¡Copiado!",
+    sendEmail: "Enviar correo",
+    aboutTitle: "Sobre Gracie Bon",
+    aboutBio: "Gracie Bon es una reconocida creadora digital panameña, icono de la moda curvy y embajadora global del amor propio. Con millones de seguidores en todo el mundo, Gracie utiliza su influyente plataforma para promover la autoaceptación, visibilizar la belleza natural, crear conciencia sobre afecciones de salud como el lipedema y defender la inclusión en los viajes y la moda.",
+    newsSectionTitle: "Prensa y Cobertura Mediática",
+    newsSectionSubtitle: "Reconocida por destacados medios internacionales por su defensa del amor propio, confianza e impacto cultural.",
+    pressInquiry: "Para entrevistas de prensa, notas editoriales o declaraciones oficiales, escribe a:",
+    rights: "Todos los derechos reservados",
+    articles: [
+      {
+        outlet: "PinkNews",
+        category: "Salud y Visibilidad",
+        date: "Reportaje Especial",
+        title: "Promoviendo la Conciencia sobre el Lipedema y la Salud Mental",
+        quote: "Gracie Bon brinda una visibilidad vital al lipedema, ayudando a millones a comprender esta condición con honestidad y valentía.",
+        highlight: "Elogiada por romper el tabú sobre afecciones linfáticas crónicas y construir una comunidad de apoyo incondicional para mujeres de todo el mundo."
+      },
+      {
+        outlet: "Daily Record y Prensa Internacional",
+        category: "Defensa e Inclusión",
+        date: "Noticias Globales",
+        title: "Liderando la Petición por Viajes Accesibles e Inclusivos",
+        quote: "Abriendo una conversación indispensable sobre dignidad, comodidad e inclusión para viajeros de todas las contexturas.",
+        highlight: "Destacada por medios globales por alzar la voz con firmeza en favor de asientos más amplios y respetuosos en las aerolíneas comerciales."
+      },
+      {
+        outlet: "Bored Panda y Medios de Estilo de Vida",
+        category: "Amor Propio",
+        date: "Voces Inspiradoras",
+        title: "Amor Propio Radical: Normalizando la Belleza Natural",
+        quote: "Un faro de confianza que inspira a miles a amar sus curvas y sentirse orgullosas de su autenticidad.",
+        highlight: "Reconocida por compartir imágenes reales sin filtros ni estereotipos, desmitificando los estándares irreales de las redes sociales."
+      },
+      {
+        outlet: "Moda Curvy y Tendencias Globales",
+        category: "Moda e Influencia",
+        date: "Enfoque de Industria",
+        title: "Redefiniendo los Estándares de la Moda y la Representación",
+        quote: "Transformando la industria textil y curvy con una energía arrolladora e impacto sin precedentes.",
+        highlight: "Aclamada como una de las principales figuras de las marcas de moda inclusiva, demostrando que el estilo y la elegancia no tienen talla."
+      }
+    ]
   }
 };
 
 export default function App() {
-  const [lang, setLang] = useState<Language>('en');
-  const [isHolding, setIsHolding] = useState(false);
-  const [showAgeModal, setShowAgeModal] = useState(false);
-  const holdTimer = useRef<NodeJS.Timeout | null>(null);
-  const controls = useAnimation();
+  const [lang, setLang] = useState<'en' | 'es'>('en');
+  const [copied, setCopied] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
   const t = TRANSLATIONS[lang];
 
-  const handleStart = () => {
-    setIsHolding(true);
-    controls.start({
-      width: '100%',
-      transition: { duration: 1.5, ease: "linear" }
-    });
-    
-    holdTimer.current = setTimeout(() => {
-      setShowAgeModal(true);
-      handleEnd();
-    }, 1500);
-  };
+  useEffect(() => {
+    setMounted(true);
+    // Initial language detection
+    const userLang = navigator.language?.split('-')[0];
+    if (userLang === 'es') setLang('es');
+  }, []);
 
-  const handleEnd = () => {
-    setIsHolding(false);
-    if (holdTimer.current) clearTimeout(holdTimer.current);
-    controls.start({
-      width: '0%',
-      transition: { duration: 0.3 }
-    });
-  };
-
-  const handleAgeConfirm = (over18: boolean) => {
-    setShowAgeModal(false);
-    if (over18) {
-      window.open('https://onlyfans.com', '_blank');
+  const handleCopyEmail = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(t.email);
+      } else {
+        const textArea = document.createElement("textarea");
+        textArea.value = t.email;
+        textArea.style.position = "fixed";
+        textArea.style.opacity = "0";
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand("copy");
+        document.body.removeChild(textArea);
+      }
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
+    } catch {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2200);
     }
   };
+
+  if (!mounted) return null;
+
   return (
-    <div className="relative h-screen w-full bg-brand-pink text-brand-maroon flex flex-col p-8 overflow-hidden font-sans selection:bg-brand-maroon selection:text-brand-pink">
-      {/* Dynamic Background Noise */}
-      <div className="absolute inset-0 z-0 opacity-40 pointer-events-none mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
-      
-      {/* Floating Aesthetic Elements */}
-      <motion.div 
-        animate={{ 
-          rotate: 360,
-          scale: [1, 1.1, 1]
-        }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-        className="absolute -top-20 -right-20 w-80 h-80 border border-brand-maroon/10 rounded-full md:block"
-      />
+    <div className="relative min-h-screen w-full flex flex-col justify-between items-center overflow-x-hidden bg-brand-dark selection:bg-brand-primary/30">
+      {/* Top Header with Language Controls above the picture */}
+      <header className="relative z-30 w-full max-w-3xl mx-auto px-6 pt-6 pb-2 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <ShieldCheck className="w-4 h-4 text-brand-primary/70" />
+          <span className="text-[11px] uppercase tracking-widest text-brand-primary/60 font-semibold font-sans">
+            Official Site
+          </span>
+        </div>
 
-      {/* Header / Logo Section */}
-      <header className="relative z-20 flex flex-col items-center pt-4">
-        <nav className="w-full flex justify-end items-center mb-4">
-          <motion.button 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            onClick={() => setLang(lang === 'en' ? 'es' : 'en')}
-            className="text-[10px] tracking-[0.2em] font-black border-2 border-brand-maroon px-4 py-1.5 hover:bg-brand-maroon hover:text-brand-pink transition-all uppercase rounded-full"
+        <div className="flex items-center gap-3">
+          <button 
+            type="button"
+            onClick={() => setLang('en')}
+            className={`text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${
+              lang === 'en' 
+                ? 'text-brand-primary underline underline-offset-4' 
+                : 'text-brand-primary/50 hover:text-brand-primary/80'
+            } drop-shadow`}
           >
-            {t.lang}
-          </motion.button>
-        </nav>
-
-        {/* 50% Smaller Circular Photo Section */}
-        <motion.div 
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ type: "spring", stiffness: 100 }}
-          className="relative flex flex-col items-center"
-        >
-          <div className="w-28 h-28 md:w-32 md:h-32 rounded-full border-4 border-brand-maroon overflow-hidden bg-white/20 p-1 mb-3 shadow-lg relative z-10 transition-all duration-500 hover:rotate-3">
-            <img 
-              src="/logo.png" 
-              alt="Logo" 
-              className="w-full h-full object-cover rounded-full"
-              onError={(e) => {
-                (e.target as HTMLImageElement).style.opacity = '0';
-                (e.target as HTMLImageElement).parentElement?.classList.add('bg-brand-maroon/10');
-              }}
-            />
-          </div>
-          
-          {/* Artistic Logo Font: Shrikhand for a bold, feminine, artistic look */}
-          <motion.h1 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-3xl md:text-5xl font-logo text-brand-maroon leading-none text-center tracking-normal"
+            EN
+          </button>
+          <span className="text-xs text-brand-primary/30">|</span>
+          <button 
+            type="button"
+            onClick={() => setLang('es')}
+            className={`text-xs uppercase tracking-widest font-bold transition-all cursor-pointer ${
+              lang === 'es' 
+                ? 'text-brand-primary underline underline-offset-4' 
+                : 'text-brand-primary/50 hover:text-brand-primary/80'
+            } drop-shadow`}
           >
-            GRACIE BON
-          </motion.h1>
-          
-          <div className="absolute top-0 -inset-3 border border-dashed border-brand-maroon/10 rounded-full animate-spin-slow pointer-events-none" />
-        </motion.div>
+            ES
+          </button>
+        </div>
       </header>
 
-      {/* Hero Section - Perfectly Centered Circular Button */}
-      <main className="relative z-10 flex-1 flex flex-col items-center justify-center">
-        <motion.div
-           initial={{ opacity: 0 }}
-           animate={{ opacity: 1 }}
-           className="text-center"
-        >
-          {/* Central Circular Button Hero */}
-          <div className="relative flex items-center justify-center touch-none select-none group">
-            <motion.button
-              onMouseDown={handleStart}
-              onMouseUp={handleEnd}
-              onMouseLeave={handleEnd}
-              onTouchStart={handleStart}
-              onTouchEnd={handleEnd}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className="relative w-56 h-56 md:w-64 md:h-64 rounded-full border-[6px] border-brand-maroon overflow-hidden group cursor-pointer bg-transparent transition-all shadow-[20px_20px_0px_0px_rgba(92,6,31,1)] hover:shadow-none translate-x-[-10px] translate-y-[-10px] hover:translate-x-0 hover:translate-y-0 flex items-center justify-center text-center p-12 active:shadow-inner"
-            >
-              {/* Radial Progress Fill */}
-              <motion.div 
-                animate={{
-                    clipPath: isHolding ? 'circle(100% at 50% 50%)' : 'circle(0% at 50% 50%)'
-                }}
-                transition={{ duration: 1.5, ease: "easeInOut" }}
-                className="absolute inset-0 bg-brand-maroon z-0"
-              />
-              
-              <span className={`relative z-10 text-xs md:text-base tracking-[0.5em] font-[900] uppercase transition-colors duration-500 leading-normal ${isHolding ? 'text-brand-pink' : 'text-brand-maroon'}`}>
-                {t.pressAndHold}
-              </span>
-            </motion.button>
-            
-            {/* Pulsing Outer Rings */}
-            <motion.div 
-               animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.4, 0.1] }}
-               transition={{ duration: 4, repeat: Infinity }}
-               className="absolute w-72 h-72 md:w-80 md:h-80 border-2 border-brand-maroon/10 rounded-full pointer-events-none"
-            />
-            <motion.div 
-               animate={{ scale: [1.3, 1, 1.3], opacity: [0.05, 0.2, 0.05] }}
-               transition={{ duration: 5, repeat: Infinity }}
-               className="absolute w-80 h-80 md:w-[400px] md:h-[400px] border border-brand-maroon/5 rounded-full pointer-events-none"
-            />
+      {/* Picture as Hero Background */}
+      <div className="absolute inset-x-0 top-0 h-[62vh] sm:h-[72vh] z-0 overflow-hidden pointer-events-none flex justify-center">
+        <div className="relative w-full max-w-md sm:max-w-xl h-full">
+          <img 
+            src="/photo.jpg" 
+            alt="Gracie Bon" 
+            className="w-full h-full object-cover object-top"
+          />
+          {/* Subtle top shading for contrast */}
+          <div className="absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-brand-dark/60 to-transparent" />
+          {/* Lower gradient that fades seamlessly into the darker background */}
+          <div className="absolute inset-x-0 bottom-0 h-[55%] bg-gradient-to-t from-brand-dark via-brand-dark/90 to-transparent" />
+        </div>
+      </div>
 
-            {/* Hold Feedback */}
-            <AnimatePresence>
-              {isHolding && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 1 }}
-                  animate={{ opacity: 1, scale: 1.5 }}
-                  exit={{ opacity: 0, scale: 1.8 }}
-                  className="absolute inset-0 border-4 border-brand-maroon/30 rounded-full pointer-events-none"
-                />
-              )}
-            </AnimatePresence>
+      {/* Main Container */}
+      <main className="relative z-20 flex-1 w-full max-w-3xl mx-auto px-5 sm:px-6 flex flex-col items-center pt-8 pb-16">
+        
+        {/* Hero Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          className="w-full flex flex-col items-center mt-6 sm:mt-12 text-center"
+        >
+          {/* Titles */}
+          <h1 className="font-display text-6xl sm:text-7xl md:text-8xl leading-[0.88] mb-3 text-brand-primary uppercase tracking-tighter drop-shadow-[0_4px_30px_rgba(0,0,0,0.9)]">
+            Hey<br />BonBon
+          </h1>
+
+          {/* Subtitle / Tagline */}
+          <div className="flex items-center justify-center gap-1.5 mb-12 sm:mb-16">
+            <Sparkles className="w-4 h-4 text-brand-primary/80 shrink-0" />
+            <p className="text-sm sm:text-base font-medium text-brand-primary/95 tracking-wide drop-shadow font-sans">
+              {t.tagline}
+            </p>
+            <Sparkles className="w-4 h-4 text-brand-primary/80 shrink-0" />
+          </div>
+        </motion.div>
+
+        {/* About Gracie Bon Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="w-full max-w-2xl bg-brand-dark/90 backdrop-blur-md border border-brand-primary/20 rounded-3xl p-6 sm:p-8 shadow-xl mb-12"
+        >
+          <div className="flex items-center gap-2.5 mb-3.5">
+            <Heart className="w-5 h-5 text-brand-primary fill-brand-primary/20" />
+            <h2 className="text-xl sm:text-2xl font-display uppercase tracking-wide text-brand-primary">
+              {t.aboutTitle}
+            </h2>
+          </div>
+          <p className="text-sm sm:text-base text-brand-primary/85 leading-relaxed font-sans font-light">
+            {t.aboutBio}
+          </p>
+        </motion.div>
+
+        {/* News & Press Highlights Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.3 }}
+          className="w-full max-w-2xl flex flex-col items-center"
+        >
+          {/* Section Header */}
+          <div className="flex flex-col items-center text-center mb-8">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-brand-primary/10 border border-brand-primary/25 text-brand-primary text-xs uppercase tracking-widest font-semibold mb-3">
+              <Newspaper className="w-3.5 h-3.5" />
+              <span>In The News</span>
+            </div>
+            <h2 className="font-display text-2xl sm:text-3xl uppercase tracking-wide text-brand-primary mb-2">
+              {t.newsSectionTitle}
+            </h2>
+            <p className="text-xs sm:text-sm text-brand-primary/70 max-w-lg font-sans">
+              {t.newsSectionSubtitle}
+            </p>
+          </div>
+
+          {/* Articles Grid */}
+          <div className="grid grid-cols-1 gap-5 w-full">
+            {t.articles.map((item, index) => (
+              <motion.article
+                key={index}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 * index }}
+                className="group relative bg-brand-dark/75 hover:bg-brand-dark/90 border border-brand-primary/25 hover:border-brand-primary/50 transition-all duration-300 rounded-2xl p-5 sm:p-6 shadow-lg shadow-black/40"
+              >
+                {/* Card Top Metadata */}
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-xs uppercase tracking-wider text-brand-primary bg-brand-primary/15 px-2.5 py-1 rounded-md border border-brand-primary/20">
+                      {item.outlet}
+                    </span>
+                    <span className="text-[11px] uppercase tracking-wider text-brand-primary/60 font-sans">
+                      • {item.category}
+                    </span>
+                  </div>
+                  <span className="text-[11px] text-brand-primary/50 font-sans">
+                    {item.date}
+                  </span>
+                </div>
+
+                {/* Article Headline */}
+                <h3 className="text-base sm:text-lg font-bold text-brand-primary tracking-tight mb-2.5 font-sans leading-snug">
+                  {item.title}
+                </h3>
+
+                {/* Editorial Quote */}
+                <div className="relative pl-4 border-l-2 border-brand-primary/40 my-3 text-xs sm:text-sm italic text-brand-primary/90 font-sans leading-relaxed">
+                  <Quote className="w-3.5 h-3.5 text-brand-primary/40 absolute -left-2 -top-1 bg-brand-dark" />
+                  "{item.quote}"
+                </div>
+
+                {/* Editorial Summary */}
+                <p className="text-xs sm:text-sm text-brand-primary/75 leading-relaxed font-sans font-light">
+                  {item.highlight}
+                </p>
+              </motion.article>
+            ))}
+          </div>
+
+          {/* Press Inquiries Reminder Card */}
+          <div className="w-full mt-8 bg-brand-primary/10 border border-brand-primary/30 rounded-2xl p-4 sm:p-5 text-center flex flex-col sm:flex-row items-center justify-between gap-3">
+            <div className="flex items-center gap-2.5 text-left">
+              <Award className="w-5 h-5 text-brand-primary shrink-0" />
+              <p className="text-xs text-brand-primary/80 font-sans">
+                {t.pressInquiry} <span className="font-bold text-brand-primary">{t.email}</span>
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleCopyEmail}
+              className="px-3.5 py-1.5 rounded-lg bg-brand-primary text-brand-dark font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all cursor-pointer shrink-0"
+            >
+              {copied ? t.copied : t.copyEmail}
+            </button>
           </div>
         </motion.div>
       </main>
 
-      {/* Bottom Footer Details */}
-      <footer className="relative z-10 flex justify-between items-end font-sans">
-        <div className="flex gap-12 w-full md:w-auto justify-between md:justify-start border-t-2 border-brand-maroon/10 pt-6 md:pt-0">
-          <div className="space-y-1">
-            <p className="text-[8px] uppercase tracking-widest font-black opacity-40">{t.social}</p>
-            <p className="text-[11px] font-black uppercase hover:italic transition-all">@graciebon</p>
-          </div>
-          <div className="space-y-1">
-            <p className="text-[8px] uppercase tracking-widest font-black opacity-40">{t.inquiries}</p>
-            <p className="text-[11px] font-black uppercase">{t.collab}</p>
-          </div>
+      {/* Footer */}
+      <footer className="relative z-30 w-full max-w-3xl mx-auto px-6 py-8 text-center border-t border-brand-primary/10 flex flex-col sm:flex-row items-center justify-between gap-2">
+        <p className="text-[11px] text-brand-primary/40 font-sans tracking-widest uppercase">
+          © {new Date().getFullYear()} Gracie Bon. {t.rights}.
+        </p>
+        <div className="flex items-center gap-1.5 text-[11px] text-brand-primary/40 font-sans tracking-wider">
+          <Globe2 className="w-3 h-3" />
+          <span>Global Brand Partnerships & Positive Vibes</span>
         </div>
       </footer>
-
-      {/* Age Verification Modal */}
-      <AnimatePresence>
-        {showAgeModal && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-brand-maroon/90 backdrop-blur-sm"
-          >
-            <motion.div 
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
-              className="bg-brand-pink border-4 border-brand-maroon p-8 md:p-12 rounded-[2rem] max-w-sm w-full text-center shadow-[20px_20px_0px_0px_rgba(92,6,31,0.5)]"
-            >
-              <h2 className="text-2xl md:text-3xl font-serif font-black mb-8 leading-tight">
-                {t.ageWarning}
-              </h2>
-              <div className="flex flex-col gap-4">
-                <button 
-                  onClick={() => handleAgeConfirm(true)}
-                  className="w-full bg-brand-maroon text-brand-pink py-4 rounded-full font-black uppercase tracking-widest hover:scale-105 transition-transform active:scale-95"
-                >
-                  {t.yes}
-                </button>
-                <button 
-                  onClick={() => handleAgeConfirm(false)}
-                  className="w-full border-2 border-brand-maroon text-brand-maroon py-4 rounded-full font-black uppercase tracking-widest hover:bg-brand-maroon hover:text-brand-pink transition-all active:scale-95"
-                >
-                  {t.no}
-                </button>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

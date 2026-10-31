@@ -1,33 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&family=Syne:wght@400;700;800&family=Shrikhand&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@300;400;600&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-serif: "Syne", sans-serif;
-  --font-logo: "Shrikhand", cursive;
-  --font-display: "Syne", sans-serif;
-  
-  --color-brand-pink: #FFA7B5;
-  --color-brand-maroon: #5C061F;
+  --font-display: "Anton", sans-serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-brand-primary: #FFA7B5;
+  --color-brand-dark: #5C061F;
 }
 
-@layer base {
-  body {
-    @apply font-sans bg-brand-pink text-brand-maroon selection:bg-brand-maroon selection:text-brand-pink text-sm;
-  }
-  
-  h1, h2, h3 {
-    @apply font-serif font-extrabold;
-  }
-}
-
-@layer utilities {
-  .animate-spin-slow {
-    animation: spin 8s linear infinite;
-  }
-}
-
-@keyframes spin {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+body {
+  background-color: #5C061F;
+  color: #FFA7B5;
 }
